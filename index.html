@@ -312,6 +312,56 @@
       0%, 100% { opacity: 1; }
       50%       { opacity: 0; }
     }
+
+    /* History log */
+    .history-block {
+      margin-top: 1.8rem;
+      text-align: left;
+    }
+
+    .history-title {
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.25em;
+      color: #ff0080;
+      text-shadow: 0 0 8px #ff0080;
+      margin-bottom: 0.8rem;
+      text-align: center;
+    }
+
+    .history-entry {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.6rem;
+      padding: 0.5rem 0;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      font-size: 0.62rem;
+    }
+
+    .history-entry:last-child { border-bottom: none; }
+
+    .history-emoji { font-size: 1rem; line-height: 1; flex-shrink: 0; }
+
+    .history-info { flex: 1; }
+
+    .history-level {
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+
+    .history-date {
+      color: rgba(255,255,255,0.3);
+      font-size: 0.55rem;
+      letter-spacing: 0.08em;
+      margin-top: 1px;
+    }
+
+    .history-note {
+      color: #ffcc00;
+      font-style: italic;
+      margin-top: 2px;
+      font-size: 0.6rem;
+    }
   </style>
 </head>
 <body>
@@ -348,6 +398,12 @@
           <div class="visitor-counter" id="visitorCount">000000</div>
           <div class="updated-row" id="updatedRow">last updated: loading...</div>
           <div class="divider-line" style="margin-top:12px;">·· ·−− ·− −· − &nbsp;/&nbsp; − −−− &nbsp;/&nbsp; −·· ·· ·</div>
+        </div>
+
+        <div class="history-block" id="historyBlock" style="display:none;">
+          <div class="divider-line" style="margin: 1rem 0 0.8rem;">✦✦✦ ~ ~ ~ ✦✦✦ ~ ~ ~ ✦✦✦</div>
+          <div class="history-title">⚡ TRANSMISSION LOG ⚡</div>
+          <div id="historyList"></div>
         </div>
 
       </div>
@@ -426,6 +482,28 @@
         upd.textContent = data.updated
           ? 'last updated: ' + formatDate(data.updated)
           : 'last updated: unknown';
+
+        // Render history log
+        const history = data.history || [];
+        if (history.length > 0) {
+          document.getElementById('historyBlock').style.display = '';
+          const list = document.getElementById('historyList');
+          list.innerHTML = '';
+          // newest first
+          [...history].reverse().forEach(entry => {
+            const es = STATES[Math.ceil(Math.max(1, Math.min(10, entry.level))) - 1];
+            const div = document.createElement('div');
+            div.className = 'history-entry';
+            div.innerHTML = `
+              <div class="history-emoji">${es.emoji}</div>
+              <div class="history-info">
+                <div class="history-level" style="color:${es.color}">${es.label} &nbsp;·&nbsp; ${entry.level}</div>
+                <div class="history-date">${entry.date || ''}</div>
+                ${entry.note ? `<div class="history-note">> ${entry.note}</div>` : ''}
+              </div>`;
+            list.appendChild(div);
+          });
+        }
       })
       .catch(() => {
         document.getElementById('conditionName').textContent = '???';
