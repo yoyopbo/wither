@@ -341,13 +341,7 @@
 
         <div class="scale-row" id="scaleRow"></div>
 
-        <div class="divider-line">✦✦✦ ~ ~ ~ ✦✦✦ ~ ~ ~ ✦✦✦</div>
-
-        <div class="note-box">
-          <div class="note-text" id="noteText">no notes today...</div>
-        </div>
-
-        <div class="divider-line">✦✦✦ ~ ~ ~ ✦✦✦ ~ ~ ~ ✦✦✦</div>
+        <div class="divider-line" title="help me, i'm dying">···· · ·−·· ·−−· &nbsp;/&nbsp; −− · &nbsp;/&nbsp; ·· −− &nbsp;/&nbsp; −·· −·−− ·· −· −−·</div>
 
         <div class="footer-block">
           <div class="visitor-label">VISITORS TODAY</div>
@@ -426,10 +420,6 @@
           }
         }
 
-        const noteEl = document.getElementById('noteText');
-        noteEl.textContent = data.note
-          ? '> ' + data.note
-          : 'no notes today...';
 
         const upd = document.getElementById('updatedRow');
         upd.textContent = data.updated
