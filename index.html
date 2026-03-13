@@ -313,6 +313,67 @@
       50%       { opacity: 0; }
     }
 
+    /* Doomsday Countdown */
+    .countdown-block {
+      margin: 1.4rem 0;
+      padding: 1rem 0.8rem;
+      border: 2px solid #ff0000;
+      border-radius: 4px;
+      background: rgba(255,0,0,0.06);
+      animation: dangerPulse 2s ease-in-out infinite;
+    }
+
+    @keyframes dangerPulse {
+      0%, 100% { box-shadow: 0 0 10px rgba(255,0,0,0.3), inset 0 0 10px rgba(255,0,0,0.05); border-color: #ff0000; }
+      50%       { box-shadow: 0 0 30px rgba(255,0,0,0.7), inset 0 0 20px rgba(255,0,0,0.1); border-color: #ff6666; }
+    }
+
+    .countdown-label {
+      font-size: 0.6rem;
+      font-weight: 900;
+      letter-spacing: 0.15em;
+      color: #ff0000;
+      text-shadow: 0 0 10px #ff0000;
+      margin-bottom: 0.2rem;
+      animation: blink 1.5s step-end infinite;
+    }
+
+    .countdown-sub {
+      font-size: 0.5rem;
+      color: rgba(255,100,100,0.6);
+      letter-spacing: 0.1em;
+      margin-bottom: 1rem;
+    }
+
+    .countdown-digits {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    .countdown-unit { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+
+    .countdown-num {
+      font-size: 2rem;
+      font-weight: 900;
+      color: #ff3333;
+      text-shadow: 0 0 12px #ff0000, 0 0 24px rgba(255,0,0,0.5);
+      font-variant-numeric: tabular-nums;
+      min-width: 2.5ch;
+      text-align: center;
+    }
+
+    .countdown-unit-label { font-size: 0.5rem; color: rgba(255,100,100,0.6); letter-spacing: 0.2em; }
+
+    .countdown-sep {
+      font-size: 2rem;
+      font-weight: 900;
+      color: #ff0000;
+      margin-bottom: 1rem;
+      animation: blink 1s step-end infinite;
+    }
+
   </style>
 </head>
 <body>
@@ -343,6 +404,33 @@
         <div class="scale-row" id="scaleRow"></div>
 
         <div class="divider-line">·−−· ·−·· · ·− ··· · &nbsp;/&nbsp; ···· · ·−·· ·−−· &nbsp;/&nbsp; −− ·</div>
+
+        <!-- Doomsday Countdown -->
+        <div class="countdown-block">
+          <div class="countdown-label">⚠ TIME UNTIL AZMYTH TURNS 30 ⚠</div>
+          <div class="countdown-sub">MARCH 4, 2029 · DOOMSDAY PROTOCOL INITIATED</div>
+          <div class="countdown-digits">
+            <div class="countdown-unit">
+              <div class="countdown-num" id="cd-days">---</div>
+              <div class="countdown-unit-label">DAYS</div>
+            </div>
+            <div class="countdown-sep">:</div>
+            <div class="countdown-unit">
+              <div class="countdown-num" id="cd-hours">--</div>
+              <div class="countdown-unit-label">HRS</div>
+            </div>
+            <div class="countdown-sep">:</div>
+            <div class="countdown-unit">
+              <div class="countdown-num" id="cd-mins">--</div>
+              <div class="countdown-unit-label">MIN</div>
+            </div>
+            <div class="countdown-sep">:</div>
+            <div class="countdown-unit">
+              <div class="countdown-num" id="cd-secs">--</div>
+              <div class="countdown-unit-label">SEC</div>
+            </div>
+          </div>
+        </div>
 
         <div class="footer-block">
           <div class="visitor-label">VISITORS TODAY</div>
@@ -435,6 +523,29 @@
         document.getElementById('subLabel').textContent      = 'ERROR: CANNOT CONNECT';
         document.getElementById('updatedRow').textContent    = 'connection failed';
       });
+  // Doomsday countdown to March 4, 2029
+  const DOOMSDAY = new Date('2029-03-04T00:00:00');
+  function updateCountdown() {
+    const diff = DOOMSDAY - Date.now();
+    if (diff <= 0) {
+      document.getElementById('cd-days').textContent  = '000';
+      document.getElementById('cd-hours').textContent = '00';
+      document.getElementById('cd-mins').textContent  = '00';
+      document.getElementById('cd-secs').textContent  = '00';
+      return;
+    }
+    const days  = Math.floor(diff / 86400000);
+    const hours = Math.floor((diff % 86400000) / 3600000);
+    const mins  = Math.floor((diff % 3600000)  / 60000);
+    const secs  = Math.floor((diff % 60000)    / 1000);
+    document.getElementById('cd-days').textContent  = String(days).padStart(3, '0');
+    document.getElementById('cd-hours').textContent = String(hours).padStart(2, '0');
+    document.getElementById('cd-mins').textContent  = String(mins).padStart(2, '0');
+    document.getElementById('cd-secs').textContent  = String(secs).padStart(2, '0');
+  }
+  updateCountdown();
+  setInterval(updateCountdown, 1000);
+
   // Marquee phrase cycler — rAF-based, no CSS animation dependency
   const MARQUEE_PHRASES = [
     "everything is fine",
