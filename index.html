@@ -441,7 +441,7 @@
         document.getElementById('subLabel').textContent      = 'ERROR: CANNOT CONNECT';
         document.getElementById('updatedRow').textContent    = 'connection failed';
       });
-  // Marquee phrase cycler
+  // Marquee phrase cycler — rAF-based, no CSS animation dependency
   const MARQUEE_PHRASES = [
     "everything is fine",
     "i want to die",
@@ -454,32 +454,52 @@
     "pls leave me alone i'm too popular",
   ];
 
+  const PX_PER_SEC = 45; // slow crawl
+
   let marqueeIndex = 0;
+  let currentX     = 0;
+  let lastTime     = null;
+  let rafId        = null;
+
   const marqueeInner = document.getElementById('marqueeInner');
   const marqueeText  = document.getElementById('marqueeText');
 
-  function runNextPhrase() {
+  // Kill any CSS animation on the element so rAF is in full control
+  marqueeInner.style.animation = 'none';
+
+  function startPhrase() {
     const phrase = MARQUEE_PHRASES[marqueeIndex % MARQUEE_PHRASES.length];
     marqueeIndex++;
-
     marqueeText.textContent = phrase;
 
-    // Reset any existing animation
-    marqueeInner.style.animation = 'none';
-    void marqueeInner.offsetWidth; // force reflow
+    // Start from just off the right edge of the viewport
+    currentX = window.innerWidth;
+    lastTime = null;
+    marqueeInner.style.transform = `translateX(${currentX}px)`;
 
-    // Very slow speed: ~30px/s
-    // total distance ≈ viewport width + estimated text width (chars × ~13px)
-    const pxPerSec = 30;
-    const estTextPx = phrase.length * 13;
-    const totalPx = window.innerWidth + estTextPx;
-    const duration = Math.round(totalPx / pxPerSec);
-
-    marqueeInner.style.animation = `marqueeScroll ${duration}s linear 1 forwards`;
+    if (rafId) cancelAnimationFrame(rafId);
+    rafId = requestAnimationFrame(step);
   }
 
-  marqueeInner.addEventListener('animationend', runNextPhrase);
-  runNextPhrase();
+  function step(ts) {
+    if (!lastTime) lastTime = ts;
+    const dt = (ts - lastTime) / 1000;
+    lastTime = ts;
+
+    currentX -= PX_PER_SEC * dt;
+    marqueeInner.style.transform = `translateX(${currentX}px)`;
+
+    // Once the whole text has exited the left edge, start next phrase
+    const textWidth = marqueeInner.offsetWidth;
+    if (currentX < -textWidth) {
+      startPhrase();
+      return;
+    }
+
+    rafId = requestAnimationFrame(step);
+  }
+
+  startPhrase();
   </script>
 </body>
 </html>
