@@ -51,7 +51,7 @@
     .marquee-inner {
       display: flex;
       white-space: nowrap;
-      animation: marqueeScroll 14s linear infinite;
+      will-change: transform;
     }
 
     @keyframes marqueeScroll {
@@ -65,7 +65,7 @@
       font-weight: 700;
       color: #000;
       letter-spacing: 0.2em;
-      padding-right: 4rem;
+      padding: 0 2rem;
     }
 
     /* Main card wrapper */
@@ -318,9 +318,8 @@
 
   <!-- Marquee banner -->
   <div class="marquee-banner">
-    <div class="marquee-inner">
-      <span class="marquee-text">★ WELCOME TO AZMYTH'S WITHER REPORT ★ UPDATED DAILY ★ MOOD TRACKER V3.0 ★ BEST VIEWED IN 1024x768 ★ NO HOTLINKING ★ SIGN MY GUESTBOOK ★ </span>
-      <span class="marquee-text">★ WELCOME TO AZMYTH'S WITHER REPORT ★ UPDATED DAILY ★ MOOD TRACKER V3.0 ★ BEST VIEWED IN 1024x768 ★ NO HOTLINKING ★ SIGN MY GUESTBOOK ★ </span>
+    <div class="marquee-inner" id="marqueeInner">
+      <span class="marquee-text" id="marqueeText"></span>
     </div>
   </div>
 
@@ -442,6 +441,45 @@
         document.getElementById('subLabel').textContent      = 'ERROR: CANNOT CONNECT';
         document.getElementById('updatedRow').textContent    = 'connection failed';
       });
+  // Marquee phrase cycler
+  const MARQUEE_PHRASES = [
+    "everything is fine",
+    "i want to die",
+    "The FitnessGram\u2122 Pacer Test is a multistage aerobic capacity test that progressively gets more difficult as it continues. The 20 meter pacer test will begin in 30 seconds. Line up at the start. The running speed starts slowly, but gets faster each minute after you hear this signal. A single lap should be completed each time you hear this sound. Remember to run in a straight line, and run as long as possible. The second time you fail to complete a lap before the sound, your test is over. The test will begin on the word start. On your mark, get ready, start.",
+    "everything went downhill when harambe died",
+    "i'm sorry if i don't respond",
+    "everything feels like ass",
+    "i should probably open a new business",
+    "why doesn't anyone love me",
+    "pls leave me alone i'm too popular",
+  ];
+
+  let marqueeIndex = 0;
+  const marqueeInner = document.getElementById('marqueeInner');
+  const marqueeText  = document.getElementById('marqueeText');
+
+  function runNextPhrase() {
+    const phrase = MARQUEE_PHRASES[marqueeIndex % MARQUEE_PHRASES.length];
+    marqueeIndex++;
+
+    marqueeText.textContent = phrase;
+
+    // Reset any existing animation
+    marqueeInner.style.animation = 'none';
+    void marqueeInner.offsetWidth; // force reflow
+
+    // Very slow speed: ~30px/s
+    // total distance ≈ viewport width + estimated text width (chars × ~13px)
+    const pxPerSec = 30;
+    const estTextPx = phrase.length * 13;
+    const totalPx = window.innerWidth + estTextPx;
+    const duration = Math.round(totalPx / pxPerSec);
+
+    marqueeInner.style.animation = `marqueeScroll ${duration}s linear 1 forwards`;
+  }
+
+  marqueeInner.addEventListener('animationend', runNextPhrase);
+  runNextPhrase();
   </script>
 </body>
 </html>
